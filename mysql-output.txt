@@ -4,3 +4,8 @@ information_schema
 mysql
 performance_schema
 sys
+Tables_in_B-DAVIN_Vatanak-db
+profiles
+templates
+VERSION()
+8.4.10
