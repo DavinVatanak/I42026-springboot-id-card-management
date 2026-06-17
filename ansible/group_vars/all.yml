@@ -1,0 +1,10 @@
+---
+# Database Configuration
+db_name: "B-DAVIN_Vatanak-db"
+db_user: "root"
+db_password: "Hello@123"
+
+# Application Configuration
+app_dir: "/app"
+git_repo: "https://github.com/DavinVatanak/I42026-springboot-id-card-management.git"
+backup_dir: "/opt/backups"

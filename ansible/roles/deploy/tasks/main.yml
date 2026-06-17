@@ -1,0 +1,100 @@
+---
+# 1. Database Backup Tasks
+- name: Ensure backup directory exists
+  ansible.builtin.file:
+    path: "{{ backup_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Generate current timestamp for backup filename
+  ansible.builtin.command: date +%Y-%m-%d-%H%M
+  register: timestamp
+  changed_when: false
+
+- name: Backup MySQL Database
+  community.mysql.mysql_db:
+    name: "{{ db_name }}"
+    state: dump
+    target: "{{ backup_dir }}/backup-{{ timestamp.stdout }}.sql"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_password }}"
+    login_host: "mysql-service" # Because we are in Kubernetes
+  ignore_errors: yes # Ignore if community.mysql is not installed, fallback to shell
+  register: mysql_dump_result
+
+- name: Fallback to shell mysqldump if module fails
+  ansible.builtin.shell: >
+    mysqldump -u {{ db_user }} -p{{ db_password }} -h mysql-service {{ db_name }} > {{ backup_dir }}/backup-{{ timestamp.stdout }}.sql
+  when: mysql_dump_result.failed is defined and mysql_dump_result.failed
+
+- name: Compress Database Backup
+  ansible.builtin.archive:
+    path: "{{ backup_dir }}/backup-{{ timestamp.stdout }}.sql"
+    dest: "{{ backup_dir }}/backup-{{ timestamp.stdout }}.sql.gz"
+    format: gz
+    remove: yes
+
+- name: Verify backup exists
+  ansible.builtin.stat:
+    path: "{{ backup_dir }}/backup-{{ timestamp.stdout }}.sql.gz"
+  register: backup_file
+
+- name: Fail if backup was not created
+  ansible.builtin.fail:
+    msg: "Database backup failed!"
+  when: not backup_file.stat.exists
+
+# 2. Git Operations & Safety Checks
+- name: Check for uncommitted changes
+  ansible.builtin.command: git status --porcelain
+  args:
+    chdir: "{{ app_dir }}"
+  register: git_status
+  changed_when: false
+
+- name: Fail if local changes exist
+  ansible.builtin.fail:
+    msg: "Local changes detected. Cannot pull."
+  when: git_status.stdout != ""
+
+- name: Pull latest code from main branch
+  ansible.builtin.git:
+    repo: "{{ git_repo }}"
+    dest: "{{ app_dir }}"
+    version: main
+    update: yes
+
+# 3. Build & Test using SQLite
+- name: Run Maven Tests using SQLite (Test Profile)
+  ansible.builtin.command: mvn test -Dspring.profiles.active=test
+  args:
+    chdir: "{{ app_dir }}"
+  register: maven_test_output
+
+- name: Show Maven Test Logs
+  ansible.builtin.debug:
+    var: maven_test_output.stdout_lines
+
+- name: Build Spring Boot Project using Maven
+  ansible.builtin.command: mvn clean package -DskipTests
+  args:
+    chdir: "{{ app_dir }}"
+  register: maven_build_output
+
+- name: Show Maven Build Logs
+  ansible.builtin.debug:
+    var: maven_build_output.stdout_lines
+
+# 4. Restart Application (Optional depending on setup)
+- name: Find generated jar file
+  ansible.builtin.shell: find target -name "*.jar" | head -n 1
+  args:
+    chdir: "{{ app_dir }}"
+  register: jar_file
+
+- name: Restart Spring Boot Application
+  ansible.builtin.shell: "nohup java -jar {{ jar_file.stdout }} > app.log 2>&1 &"
+  args:
+    chdir: "{{ app_dir }}"
+  async: 10
+  poll: 0

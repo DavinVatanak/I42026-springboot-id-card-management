@@ -1,0 +1,7 @@
+---
+- name: Deploy Spring Boot Application and Automate Database Backup
+  hosts: web
+  become: yes
+  gather_facts: yes
+  roles:
+    - deploy

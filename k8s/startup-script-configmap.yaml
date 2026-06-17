@@ -11,8 +11,8 @@ data:
     echo "Updating apt repositories..."
     apt-get update
 
-    echo "Installing requirements: Git, Maven, JDK 21, PHP, SSH, Nginx..."
-    DEBIAN_FRONTEND=noninteractive apt-get install -y git maven openjdk-21-jdk php-cli openssh-server nginx
+    echo "Installing requirements: Git, Maven, JDK 21, PHP, SSH, Nginx, MySQL Client..."
+    DEBIAN_FRONTEND=noninteractive apt-get install -y git maven openjdk-21-jdk php-cli openssh-server nginx mysql-client python3-pymysql
 
     echo "Configuring SSH..."
     mkdir -p /var/run/sshd
