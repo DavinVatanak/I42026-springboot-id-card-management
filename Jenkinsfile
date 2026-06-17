@@ -52,8 +52,8 @@ pipeline {
         stage('Deployment') {
             steps {
                 echo 'Triggering Ansible for Continuous Deployment (CD)...'
-                // Connect to the web server and deploy the code via SSH
-                sh 'ansible-playbook -i ansible/inventory.ini ansible/deploy.yml'
+                // Export environment variable to disable host key checking inline
+                sh 'export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook -i ansible/inventory.ini ansible/deploy.yml'
             }
         }
     }
