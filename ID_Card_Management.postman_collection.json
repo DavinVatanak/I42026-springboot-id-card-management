@@ -1,0 +1,195 @@
+{
+  "info": {
+    "name": "ID Card Management System",
+    "description": "Postman collection for ID Card Management System REST API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Create Student Profile",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"STUDENT\",\n  \"fullName\": \"John Doe\",\n  \"department\": \"Computer Science\",\n  \"title\": \"Bachelor Year 3\",\n  \"email\": \"john.doe@university.edu\",\n  \"phone\": \"+855-12-345-678\",\n  \"bloodGroup\": \"O+\",\n  \"dateOfBirth\": \"2002-03-15\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/api/profiles", "host": ["{{base_url}}"], "path": ["api","profiles"]}
+          }
+        },
+        {
+          "name": "Create Employee Profile",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"EMPLOYEE\",\n  \"fullName\": \"Jane Smith\",\n  \"department\": \"Engineering\",\n  \"title\": \"Senior Developer\",\n  \"email\": \"jane.smith@company.com\",\n  \"phone\": \"+855-23-456-789\",\n  \"bloodGroup\": \"A+\",\n  \"dateOfBirth\": \"1990-07-20\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/api/profiles", "host": ["{{base_url}}"], "path": ["api","profiles"]}
+          }
+        },
+        {
+          "name": "Get All Profiles",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/profiles", "host": ["{{base_url}}"], "path": ["api","profiles"]}
+          }
+        },
+        {
+          "name": "Search Profiles by Name",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/profiles?name=john",
+              "host": ["{{base_url}}"],
+              "path": ["api","profiles"],
+              "query": [{"key": "name", "value": "john"}]
+            }
+          }
+        },
+        {
+          "name": "Filter by Type (STUDENT)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/profiles?type=STUDENT",
+              "host": ["{{base_url}}"],
+              "path": ["api","profiles"],
+              "query": [{"key": "type", "value": "STUDENT"}]
+            }
+          }
+        },
+        {
+          "name": "Get Profile by ID",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/profiles/1", "host": ["{{base_url}}"], "path": ["api","profiles","1"]}
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"STUDENT\",\n  \"fullName\": \"John Updated\",\n  \"department\": \"Computer Science\",\n  \"title\": \"Bachelor Year 4\",\n  \"email\": \"john.updated@university.edu\",\n  \"phone\": \"+855-12-999-888\",\n  \"bloodGroup\": \"O+\",\n  \"dateOfBirth\": \"2002-03-15\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/api/profiles/1", "host": ["{{base_url}}"], "path": ["api","profiles","1"]}
+          }
+        },
+        {
+          "name": "Delete Profile",
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{base_url}}/api/profiles/1", "host": ["{{base_url}}"], "path": ["api","profiles","1"]}
+          }
+        },
+        {
+          "name": "Upload Profile Photo",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "profileId", "value": "1", "type": "text"},
+                {"key": "file", "type": "file", "src": "/path/to/photo.jpg"}
+              ]
+            },
+            "url": {"raw": "{{base_url}}/api/profiles/upload-photo", "host": ["{{base_url}}"], "path": ["api","profiles","upload-photo"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Template",
+      "item": [
+        {
+          "name": "Create Template",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"STANDARD_01\",\n  \"name\": \"Standard ID Card\",\n  \"organizationName\": \"University of Tech\",\n  \"layout\": \"VERTICAL\",\n  \"primaryColor\": \"#1d4ed8\",\n  \"secondaryColor\": \"#e0e7ff\",\n  \"textColor\": \"#111827\",\n  \"tagline\": \"Official Identification\"\n}"
+            },
+            "url": {"raw": "{{base_url}}/api/templates", "host": ["{{base_url}}"], "path": ["api","templates"]}
+          }
+        },
+        {
+          "name": "Get All Templates",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/templates", "host": ["{{base_url}}"], "path": ["api","templates"]}
+          }
+        },
+        {
+          "name": "Get Active Templates",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/templates?activeOnly=true",
+              "host": ["{{base_url}}"],
+              "path": ["api","templates"],
+              "query": [{"key": "activeOnly", "value": "true"}]
+            }
+          }
+        },
+        {
+          "name": "Preview ID Card (HTML)",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/templates/1/preview/1", "host": ["{{base_url}}"], "path": ["api","templates","1","preview","1"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Card",
+      "item": [
+        {
+          "name": "Live Card Preview",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"profileId\": 1,\n  \"templateId\": 1\n}"
+            },
+            "url": {"raw": "{{base_url}}/api/cards/preview", "host": ["{{base_url}}"], "path": ["api","cards","preview"]}
+          }
+        },
+        {
+          "name": "Download PDF",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{base_url}}/api/cards/pdf/1", "host": ["{{base_url}}"], "path": ["api","cards","pdf","1"]}
+          }
+        },
+        {
+          "name": "Batch PDF as ZIP",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"profileIds\": [1, 2, 3],\n  \"templateId\": 1\n}"
+            },
+            "url": {"raw": "{{base_url}}/api/cards/batch", "host": ["{{base_url}}"], "path": ["api","cards","batch"]}
+          }
+        }
+      ]
+    }
+  ]
+}
