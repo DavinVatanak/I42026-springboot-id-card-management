@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: startup-script
+  namespace: exam-davin
+data:
+  startup.sh: |
+    #!/bin/bash
+    set -e
+
+    echo "Updating apt repositories..."
+    apt-get update
+
+    echo "Installing requirements: Git, Maven, JDK 21, PHP, SSH, Nginx..."
+    DEBIAN_FRONTEND=noninteractive apt-get install -y git maven openjdk-21-jdk php-cli openssh-server nginx
+
+    echo "Configuring SSH..."
+    mkdir -p /var/run/sshd
+    sed -i 's/#Port 22/Port 2222/' /etc/ssh/sshd_config
+    # Set root password to root for ssh access (optional, or just allow empty password / pubkey if needed)
+    echo 'root:root' | chpasswd
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+    echo "Cloning GitHub repository..."
+    git clone https://github.com/DavinVatanak/I42026-springboot-id-card-management.git /app
+    cd /app
+
+    echo "Creating php-modules.txt at repository root..."
+    php -m > /app/php-modules.txt
+
+    echo "Building Spring Boot project with Maven..."
+    mvn clean install -DskipTests
+
+    echo "Starting SSH server..."
+    /usr/sbin/sshd
+
+    echo "Starting NGINX server..."
+    # Replace default nginx config with our injected configmap
+    cp /etc/nginx/conf.d/custom-default.conf /etc/nginx/sites-available/default
+    service nginx start
+
+    echo "Starting Spring Boot Application..."
+    # Find the jar file and run it
+    JAR_FILE=$(find target -name "*.jar" | head -n 1)
+    java -jar $JAR_FILE

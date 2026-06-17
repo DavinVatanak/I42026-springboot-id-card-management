@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deployment
+  namespace: exam-davin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: web
+        image: ubuntu:22.04
+        command: ["/bin/bash", "/scripts/startup.sh"]
+        env:
+        # These override application.properties dynamically!
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql-service:3306/B-DAVIN_Vatanak-db?useSSL=false&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "Hello@123"
+        - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+          value: "com.mysql.cj.jdbc.Driver"
+        - name: SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT
+          value: "org.hibernate.dialect.MySQL8Dialect"
+        ports:
+        - containerPort: 8080
+        - containerPort: 8443
+        - containerPort: 2222
+        volumeMounts:
+        - name: startup-script-volume
+          mountPath: /scripts
+        - name: nginx-config-volume
+          mountPath: /etc/nginx/conf.d/custom-default.conf
+          subPath: default.conf
+      volumes:
+      - name: startup-script-volume
+        configMap:
+          name: startup-script
+          defaultMode: 0777
+      - name: nginx-config-volume
+        configMap:
+          name: nginx-config
