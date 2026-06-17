@@ -23,7 +23,9 @@ pipeline {
             steps {
                 echo 'Building Spring Boot project using Maven...'
                 // Clean the project and package it into a JAR, skipping tests for speed
-                sh 'mvn clean package -DskipTests'
+                // Using ./mvnw (Maven Wrapper) to fix the "mvn: command not found" error
+                sh 'chmod +x ./mvnw'
+                sh './mvnw clean package -DskipTests'
             }
         }
 
@@ -31,7 +33,7 @@ pipeline {
             steps {
                 echo 'Running unit tests against SQLite database...'
                 // Run tests using the 'test' profile to ensure isolation from production DB
-                sh 'mvn test -Dspring.profiles.active=test'
+                sh './mvnw test -Dspring.profiles.active=test'
             }
         }
 
@@ -79,8 +81,7 @@ pipeline {
                         <p><strong>Author:</strong> ${authorName}</p>
                         <p>Check console output at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
                     """,
-                    to: "${authorEmail}",
-                    cc: "${ADMIN_EMAIL}",
+                    to: "${authorEmail}, ${ADMIN_EMAIL}",
                     replyTo: "${ADMIN_EMAIL}",
                     mimeType: 'text/html'
                 )
